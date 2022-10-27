@@ -1,0 +1,6 @@
+
+POST 0.0.0.0:8080/auth/register
+Content-Type: application/json
+
+{"login": "Admin", "password": "qwery123"}
+
