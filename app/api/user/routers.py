@@ -8,9 +8,7 @@ from app.utils.crypt import crypt_password, check_password
 from app.services import token_validator
 from app.config_reader import config
 from app.services.repo import SQLAlchemyRepo, UserRepo
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.utils.jwt import create_token, check_token
-
+from app.utils.jwt import create_token
 auth_router = Blueprint(name="auth",
                         url_prefix="/auth")
 
