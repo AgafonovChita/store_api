@@ -2,7 +2,7 @@ from sanic import Blueprint, response
 from sanic.request import Request
 from sanic_pydantic import webargs
 
-from app.api.auth import UserData
+from app.api.auth import UserBody
 from app.db.models import User, Wallet, RefreshToken
 
 from app.services import token_validator
@@ -18,10 +18,10 @@ auth_router = Blueprint(name="auth",
 
 
 @auth_router.post("/register")
-@webargs(body=UserData)
+@webargs(body=UserBody)
 async def register_new_user(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
-    user_data = UserData.parse_raw(request.body)
+    user_data = UserBody.parse_raw(request.body)
 
     if not await repo.get_repo(UserRepo).check_user_by_login(login=user_data.login):
         user_data.password = await crypt_password(password=user_data.password)
@@ -43,10 +43,10 @@ async def activate_account(request, user_id: int):
 
 
 @auth_router.post("/login")
-@webargs(body=UserData)
+@webargs(body=UserBody)
 async def login_user(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
-    user_data: UserData = UserData.parse_raw(request.body)
+    user_data: UserBody = UserBody.parse_raw(request.body)
     user = await repo.get_repo(UserRepo).get_user_by_login(login=user_data.login)
 
     if (not user) or (not await check_password(password=user_data.password, hash_password=user.password)):

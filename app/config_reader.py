@@ -7,9 +7,13 @@ class Settings(BaseSettings):
     POSTGRES_DB: str
     POSTGRES_HOST: str
     POSTGRES_PORT: int
+
     APP_HOST: str
     APP_PORT: int
+
     SECRET_KEY: str
+    PRIVATE_KEY: str
+
     TTL_ACCESS_TOKEN: int
     TTL_REFRESH_TOKEN: int
 

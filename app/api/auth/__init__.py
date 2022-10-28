@@ -1,1 +1,1 @@
-from .schemas import UserData
+from .schemas import UserBody

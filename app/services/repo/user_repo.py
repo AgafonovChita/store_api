@@ -1,11 +1,11 @@
 from app.services.repo.base import BaseSQLAlchemyRepo
 from app.db.models import User, Wallet
-from app.api.auth import UserData
+from app.api.auth import UserBody
 from sqlalchemy import update, select
 
 
 class UserRepo(BaseSQLAlchemyRepo):
-    async def user_registration(self, user_data: UserData) -> User:
+    async def user_registration(self, user_data: UserBody) -> User:
         wallet = Wallet(balance=100)
         user = await self._session.merge(User(user=user_data, wallets=[wallet]))
         await self._session.commit()

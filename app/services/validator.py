@@ -3,6 +3,9 @@ from sanic.request import Request
 from app.utils.jwt import check_token
 from app.db.models import User
 from app.services.repo import SQLAlchemyRepo, UserRepo
+from app.api.payment.schemas import PaymentBody
+from app.utils.crypt import get_signature_webhook
+from app.config_reader import config
 
 
 def token_validator(func):
@@ -11,9 +14,9 @@ def token_validator(func):
         check = await check_token(token=request.headers.get("Authorization"))
         if check.get("status") == "error":
             return response.json(check, status=401)
-
+        print(check)
         repo: SQLAlchemyRepo = request.ctx.repo
-        user = await repo.get_repo(UserRepo).get_user_by_id(user_id=check.get("payload").get("user_id"))
+        user = await repo.get_repo(UserRepo).get_user_by_id(user_id=check.get("data").get("user_id"))
         request.ctx.user = user
         result = await func(request=request)
         return result
@@ -43,3 +46,18 @@ def user_validator(is_active: bool = True, is_admin: bool = False):
         return wrapped
     return validator
 
+
+def webhook_signature_validator(func):
+    async def wrapped(request: Request):
+        payment_data: PaymentBody = PaymentBody.parse_raw(request.body)
+        signature = await get_signature_webhook(private_key=config.PRIVATE_KEY,
+                                                transaction_id=payment_data.transaction_id,
+                                                user_id=payment_data.user_id,
+                                                bill_id=payment_data.user_id,
+                                                amount=payment_data.amount)
+        if signature != payment_data.signature:
+            return response.json(body={"message": "signature webhook invalid"}, status=400)
+
+        result = await func(request)
+        return result
+    return wrapped

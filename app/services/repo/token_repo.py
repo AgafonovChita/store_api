@@ -1,6 +1,6 @@
 from app.services.repo.base import BaseSQLAlchemyRepo
 from app.db.models import User, Wallet, RefreshToken
-from app.api.auth import UserData
+from app.api.auth import UserBody
 from sqlalchemy import update, select, delete
 
 

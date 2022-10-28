@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, Text, Boolean, FLOAT, ForeignKey, BigInt
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-from app.api.auth import UserData
+from app.api.auth import UserBody
 from app.db.base import Base
 
 
@@ -17,7 +17,7 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
     wallets = relationship("Wallet", backref="owner")
 
-    def __init__(self, user: UserData, wallets):
+    def __init__(self, user: UserBody, wallets):
         self.login = user.login
         self.password = user.password
         self.wallets = wallets
@@ -41,7 +41,7 @@ class Product(Base):
     id = Column(Integer, primary_key=True)
     header = Column(Text)
     description = Column(Text, default="NotDescription")
-    price = Column(FLOAT, default=100)
+    price = Column(Integer, default=100)
 
     def to_dict(self):
         return {"id": self.id, "header": self.header, "descript": self.description, "price": self.price}
@@ -50,7 +50,7 @@ class Product(Base):
 class Wallet(Base):
     __tablename__ = "wallets"
     id = Column(BigInteger, primary_key=True)
-    balance = Column(FLOAT, default=0)
+    balance = Column(Integer, default=0)
     owner_id = Column(BigInteger, ForeignKey("users.id"))
     transactions = relationship("Transaction", backref="wallet")
 
