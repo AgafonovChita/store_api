@@ -23,7 +23,6 @@ class StoreRepo(BaseSQLAlchemyRepo):
         await self._session.commit()
         return balance.scalar() >= price.scalar()
 
-
     async def buy_product(self, wallet_id: int, product_id: int):
         price = await self._session.execute(select(Product.price).where(Product.id == product_id))
         wallet = await self._session.get(Wallet, wallet_id)

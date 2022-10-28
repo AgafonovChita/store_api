@@ -43,7 +43,6 @@ async def get_wallets(request: Request):
 async def buy_product(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
     buy_data: BuyBody = BuyBody.parse_raw(request.body)
-    print(buy_data)
 
     if not await repo.get_repo(StoreRepo).check_ability_to_pay(wallet_id=buy_data.wallet_id, product_id=buy_data.product_id):
         return response.json(body={"status": "error", "message": "Недостаточно средств на балансе счёта"})

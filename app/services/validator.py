@@ -47,17 +47,17 @@ def user_validator(is_active: bool = True, is_admin: bool = False):
     return validator
 
 
-def webhook_signature_validator(func):
-    async def wrapped(request: Request):
-        payment_data: PaymentBody = PaymentBody.parse_raw(request.body)
-        signature = await get_signature_webhook(private_key=config.PRIVATE_KEY,
-                                                transaction_id=payment_data.transaction_id,
-                                                user_id=payment_data.user_id,
-                                                bill_id=payment_data.user_id,
-                                                amount=payment_data.amount)
-        if signature != payment_data.signature:
-            return response.json(body={"message": "signature webhook invalid"}, status=400)
-
-        result = await func(request)
-        return result
-    return wrapped
+def webhook_signature_validator(check_signature: bool = True):
+    def validator(func):
+        async def wrapped(request: Request):
+            if not check_signature:
+                return await func(request)
+            payment_data: PaymentBody = PaymentBody.parse_raw(request.body)
+            signature = await get_signature_webhook(private_key=config.PRIVATE_KEY, amount=payment_data.amount,
+                                                    transaction_id=payment_data.transaction_id,
+                                                    user_id=payment_data.user_id, bill_id=payment_data.bill_id)
+            if signature != payment_data.signature:
+                return response.json(body={"message": "signature webhook invalid"}, status=400)
+            return await func(request)
+        return wrapped
+    return validator
