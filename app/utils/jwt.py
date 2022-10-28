@@ -37,7 +37,3 @@ async def check_token(token: str):
     else:
         return {"status": "ok", "message": "correct token", "payload": payload}
 
-
-async def decode_token(token: str):
-    payload = jwt.decode(jwt=token, key=config.SECRET_KEY, algorithms="HS256",
-                         verify_signature=True, leeway=10)

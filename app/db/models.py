@@ -61,7 +61,7 @@ class Wallet(Base):
 class Transaction(Base):
     __tablename__ = "transactions"
     id = Column(BigInteger, primary_key=True)
-    count = Column(FLOAT, nullable=False)
+    amount = Column(FLOAT, nullable=False)
     wallet_id = Column(BigInteger, ForeignKey("wallets.id"))
 
     def to_dict(self):
