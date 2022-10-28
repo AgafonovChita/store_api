@@ -1,7 +1,8 @@
 import datetime
 
 import jwt
-from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError
+from calendar import timegm
+from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError, DecodeError
 
 from app.config_reader import config
 
@@ -10,15 +11,17 @@ TTL_RT = config.TTL_REFRESH_TOKEN
 
 
 async def create_token(user_id: int, type_token: str):
+    exp = timegm((datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(
+                                           minutes=TTL_AT if type_token == "access" else TTL_RT)).utctimetuple())
     access_token = jwt.encode(payload={"user_id": user_id,
-                                       "exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(
-                                           minutes=TTL_AT if type_token == "access" else TTL_RT)
+                                       "exp": exp
                                        },
                               key=config.SECRET_KEY,
-                              headers={"type": "access_jwt" if type_token == "access" else "refresh_jwt",
+                              headers={"type": "JWT",
+                                       "type_token": type_token,
                                        "alg": "HS256"},
                               algorithm="HS256")
-    return access_token
+    return access_token, exp
 
 
 async def check_token(token: str):
@@ -27,7 +30,7 @@ async def check_token(token: str):
             raise InvalidSignatureError
         payload = jwt.decode(jwt=token, key=config.SECRET_KEY, algorithms="HS256",
                              verify_signature=True, leeway=10)
-    except InvalidSignatureError:
+    except (InvalidSignatureError, DecodeError):
         return {"status": "error", "message": "invalid token"}
     except ExpiredSignatureError:
         return {"status": "error", "message": "token has expired"}

@@ -1,6 +1,6 @@
 from app.services.repo.base import BaseSQLAlchemyRepo
 from app.db.models import User, Wallet
-from app.api.user import UserData
+from app.api.auth import UserData
 from sqlalchemy import update, select
 
 

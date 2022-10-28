@@ -22,10 +22,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
       - ./postgres/postgresql.conf:/etc/postgresql.conf
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/10-init.sql
     env_file:
       - .env_dev
     ports:
       - "6000:5432"
+
+
+
 
 volumes:
   postgres_data:
