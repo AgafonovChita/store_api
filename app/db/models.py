@@ -15,7 +15,7 @@ class User(Base):
     password = Column(LargeBinary, nullable=False)
     is_active = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
-    wallets = relationship("Wallet", backref="owner")
+    wallets = relationship("Wallet", backref="owner", lazy='joined')
 
     def __init__(self, user: UserBody, wallets):
         self.login = user.login
@@ -23,7 +23,7 @@ class User(Base):
         self.wallets = wallets
 
     def to_dict(self):
-        return {"id": self.id, "login": self.login, "email": self.email}
+        return {"id": self.id, "login": self.login, "is_active": self.is_active, "is_admin": self.is_admin}
 
 
 class RefreshToken(Base):
@@ -52,7 +52,8 @@ class Wallet(Base):
     transactions = relationship("Transaction", backref="wallet")
 
     def to_dict(self):
-        return {"id": self.id, "balance": self.balance, "owner_id": self.owner_id}
+        return {"id": self.id, "balance": self.balance, "owner_id": self.owner_id,
+                "transactions": self.transactions}
 
 
 class Transaction(Base):

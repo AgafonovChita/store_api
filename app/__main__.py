@@ -1,10 +1,12 @@
 from sanic import Sanic
+
 from contextvars import ContextVar
 import asyncio
 import uvloop
 from app.api.auth.routers import auth_router
 from app.api.store.routers import store_router
 from app.api.payment.routers import payment_router
+from app.api.admin.routers import admin_router
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -18,6 +20,7 @@ app = Sanic(name="StoreApp")
 app.blueprint(blueprint=auth_router)
 app.blueprint(blueprint=store_router)
 app.blueprint(blueprint=payment_router)
+app.blueprint(blueprint=admin_router)
 
 
 async def initial_db_session():

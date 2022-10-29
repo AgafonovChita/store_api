@@ -11,7 +11,7 @@ payment_router = Blueprint(name="payment",
 
 
 @payment_router.post("/webhook")
-@webhook_signature_validator(check_signature=False)
+@webhook_signature_validator
 @webargs(body=PaymentBody)
 async def buy_product(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo

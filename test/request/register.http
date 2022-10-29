@@ -14,4 +14,4 @@
 POST 0.0.0.0:8080/auth/login
 Content-Type: application/json
 
-{"login": "agafonov", "password": "qwery123"}
+{"login": "admin", "password": "qwery123"}
