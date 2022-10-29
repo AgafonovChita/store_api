@@ -1,4 +1,5 @@
-from sanic import Blueprint, response
+from sanic import Blueprint, response, HTTPResponse
+
 from sanic.request import Request
 from sanic_pydantic import webargs
 from app.api.payment.schemas import PaymentBody
@@ -12,9 +13,10 @@ admin_router = Blueprint(name="admin",
 
 
 @admin_router.get("/products")
+
 @token_validator
 @user_validator(is_active=True, is_admin=True)
-async def get_products(request: Request, **kwargs):
+async def get_products(request: Request, **kwargs) -> HTTPResponse:
     repo: SQLAlchemyRepo = request.ctx.repo
     resp = [prod.to_dict() for prod in await repo.get_repo(StoreRepo).get_products()]
     return response.json(resp)

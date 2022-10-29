@@ -18,6 +18,7 @@ auth_router = Blueprint(name="auth",
 
 
 @auth_router.post("/register")
+
 @webargs(body=UserBody)
 async def register_new_user(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo

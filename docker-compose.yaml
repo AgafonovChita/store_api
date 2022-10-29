@@ -9,7 +9,7 @@ services:
       - "8080:8080"
     restart: always
     env_file:
-      - ./.env_dev
+      - ./.env_prod
     depends_on:
       - db
     deploy:
@@ -24,7 +24,7 @@ services:
       - ./postgres/postgresql.conf:/etc/postgresql.conf
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/10-init.sql
     env_file:
-      - .env_dev
+      - .env_prod
     ports:
       - "6000:5432"
 

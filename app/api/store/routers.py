@@ -32,7 +32,7 @@ async def get_products(request: Request):
 @user_validator(is_active=True)
 async def get_wallets(request: Request):
     repo: SQLAlchemyRepo = request.ctx.repo
-    resp = [wallet.to_dict() for wallet in await repo.get_repo(StoreRepo).get_wallets(user_id=request.ctx.user.id)]
+    resp = [dict(wallet) for wallet in await repo.get_repo(StoreRepo).get_wallets(user_id=request.ctx.user.id)]
     return response.json(resp)
 
 
