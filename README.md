@@ -27,6 +27,7 @@ ________________________________________________________________
     <li>Установить Docker и Docker-compose
     <li>Клонировать репозиторий <code>https://github.com/AgafonovSiberia/store_api_SanicFramework.git</code>
     <li>Перейти в рабочую директорию <code>cd store_api</code>
+    <li>Заменить <code>.env-example</code> на <code>.env_prod</code> и заполнить его
     <li>Запустить контейнер <code>make run</code>
   </ol>
 Чтобы остановить приложение <code>make stop</code>
