@@ -35,7 +35,7 @@ class DeleteProductSchema(BaseModel):
 
 class UserAndWalletSchema(BaseModel):
     user_id: int
-    user_login: int
+    login: int
     wallets: List[WalletSchema]
 
 

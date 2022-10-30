@@ -1,8 +1,0 @@
-POST 0.0.0.0:8080/admin/delete_product
-Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsInR5cGUiOiJKV1QiLCJ0eXBlX3Rva2VuIjoiYWNjZXNzIn0.eyJ1c2VyX2lkIjo3NzcsImV4cCI6MTY2NzA1Njk0NH0.pMyVxy3qbUNf_PXq33Ktz3cdIHTj5MK76VpIsrZT1AI
-
-{
-  "product_id": 3
-}
-

@@ -1,9 +1,0 @@
-POST 0.0.0.0:8080/admin/add_product
-Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsInR5cGUiOiJKV1QiLCJ0eXBlX3Rva2VuIjoiYWNjZXNzIn0.eyJ1c2VyX2lkIjo3NzcsImV4cCI6MTY2NzA2MzcxN30.aziuJHMC8zGXQzIQddSf8hfo4H-wWRcc3MGJdueggZM
-
-{
-  "header": "Core 3 Duo",
-  "description": "PC Processor",
-  "price": 875
-}

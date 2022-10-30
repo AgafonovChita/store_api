@@ -1,6 +1,5 @@
 POST 0.0.0.0:8080/payment/webhook
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsInR5cGUiOiJKV1QiLCJ0eXBlX3Rva2VuIjoiYWNjZXNzIn0.eyJ1c2VyX2lkIjo1NTUsImV4cCI6MTY2Njk3NDI0N30.TRfH3LMZyc-MQlmiWRvH6jzdCu5QiOKIeaDmF4bVJlo
 
 {
   "signature": "564eb64580bb0acf3f28d0993ad1fdc3475e51ad",

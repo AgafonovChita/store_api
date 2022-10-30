@@ -1,3 +1,0 @@
-POST 0.0.0.0:8080/admin/users_and_wallets
-Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsInR5cGUiOiJKV1QiLCJ0eXBlX3Rva2VuIjoiYWNjZXNzIn0.eyJ1c2VyX2lkIjo3NzcsImV4cCI6MTY2NzA2NDMwNH0.5jNEzsHuILezw11ctDB7wk1nIaTwNMk7bGZ3AxC9obI

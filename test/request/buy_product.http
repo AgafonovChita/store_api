@@ -1,5 +1,0 @@
-POST 0.0.0.0:8080/store/buy_product
-Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsInR5cGUiOiJKV1QiLCJ0eXBlX3Rva2VuIjoiYWNjZXNzIn0.eyJ1c2VyX2lkIjo1NTUsImV4cCI6MTY2Njk3MTAxOH0.TLpppeJtuyhAeNhWo7QPzCmmGttCdNRvnC_P10DQtRg
-
-{"wallet_id": 5551, "product_id": 4}

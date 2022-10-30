@@ -1,12 +1,10 @@
 from app.services.repo.base import BaseSQLAlchemyRepo
-from app.db.models import User, Wallet, RefreshToken
-from app.api.auth import UserSchema
+from app.db.models import RefreshToken
 from sqlalchemy import update, select, delete
-
 
 class RefreshTokenRepo(BaseSQLAlchemyRepo):
     async def save_refresh_token(self, token: str, exp: int):
-        token = await self._session.merge(RefreshToken(token=token, exp=exp))
+        user = await self._session.merge(RefreshToken(token=token, exp=exp))
         await self._session.commit()
         return token
 

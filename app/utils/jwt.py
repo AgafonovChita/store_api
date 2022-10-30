@@ -29,7 +29,7 @@ async def check_token(token: str):
             raise InvalidSignatureError
         payload = jwt.decode(jwt=token, key=config.SECRET_KEY, algorithms="HS256",
                              verify_signature=True, leeway=10)
-    except (InvalidSignatureError, DecodeError):
+    except InvalidSignatureError:
         return {"status": "error", "message": "invalid token"}
     except ExpiredSignatureError:
         return {"status": "error", "message": "token has expired"}

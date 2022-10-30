@@ -36,10 +36,11 @@ def init_app():
         echo=True)
 
     setup_db_middlewares(app=app, engine=engine)
-    @app.after_server_start()
+    @app.after_server_start
     async def create_sheduler(app, loop):
         app.ctx.scheduler = AsyncIOScheduler()
-        app.ctx.scheduler.add_job(token_clean, "interval", args=[engine], hours=24)
+        app.ctx.scheduler.add_job(token_clean, "interval", args=[engine], seconds=20)
+        app.ctx.scheduler.start()
     return app
 
 

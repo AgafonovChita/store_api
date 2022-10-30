@@ -89,7 +89,7 @@ async def update_token(request: Request):
     token: RefreshToken = await repo.get_repo(RefreshTokenRepo).get_refresh_token(token=request.headers.get("Authorization"))
 
     if not token:
-        return response.json({"status": "error", "message": "invalid token"}, status=401)
+        return response.json({"status": "error", "message": "unknown token"}, status=401)
 
     access_token, _ = await create_token(user_id=request.ctx.user.id, type_token="access")
     refresh_token, exp = await create_token(user_id=request.ctx.user.id, type_token="refresh")

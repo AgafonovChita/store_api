@@ -87,9 +87,9 @@ async def get_users(request: Request, **kwargs):
     user_status: UserStatusSchema = UserStatusSchema.parse_raw(request.body)
     await repo.get_repo(AdminRepo).change_user_status(user_id=user_status.user_id,
                                                       is_active=user_status.is_active, is_admin=user_status.is_admin)
-    return response.json(body={"user_id": {user_status.user_id},
-                               "is_active": {user_status.is_active},
-                               "is_admin": {user_status.is_admin}}, status=200)
+    return response.json(body={"user_id": user_status.user_id,
+                               "is_active": user_status.is_active,
+                               "is_admin": user_status.is_admin}, status=200)
 
 
 @admin_router.post("/add_product")
