@@ -42,7 +42,7 @@ ________________________________________________________________
 <img src="https://github.com/AgafonovSiberia/Store_API_SanicFramework/blob/master/api_2.jpg" width="410" height="390">
 </p>
 
-Документация <b>Swagger</b> доступна по <a href="http://0.0.0.0:8080/docs">0.0.0.0:8080/docs</a>
+**Полная документация API доступна на** <a href="http://0.0.0.0:8080/docs">0.0.0.0:8080/docs</a>
 ___________________________________________________________________
 ## Example
 #### Request
