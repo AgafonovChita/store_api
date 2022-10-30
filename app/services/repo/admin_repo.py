@@ -2,7 +2,7 @@
 from typing import List
 from app.services.repo.base import BaseSQLAlchemyRepo
 from app.db.models import User, Wallet, Product, Transaction
-from app.api.auth import UserBody
+from app.api.auth import UserSchema
 from sqlalchemy import update, select, delete
 from sqlalchemy.orm import joinedload
 from app.services.repo.query import raw_sql

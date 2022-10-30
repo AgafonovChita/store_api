@@ -1,7 +1,8 @@
 from pydantic import BaseModel, EmailStr
+from pydantic import Field
 
 
-class PaymentBody(BaseModel):
+class PaymentSchema(BaseModel):
     signature: str
     transaction_id: int
     user_id: int

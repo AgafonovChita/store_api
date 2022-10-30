@@ -1,8 +1,7 @@
 from sanic import Sanic, response
-from sanic_ext import openapi
+from sanic_ext import Config
 from contextvars import ContextVar
-import asyncio
-import uvloop
+
 from app.api.auth.routers import auth_router
 from app.api.store.routers import store_router
 from app.api.payment.routers import payment_router
@@ -16,23 +15,21 @@ from app.middlewares import setup_db_middlewares
 
 from .config_reader import config
 
+
 app = Sanic(name="StoreApp")
-app.ext.config.CORS = False
-app.ext.config.OAS_URL_PREFIX = "/api"
-app.ext.config.OAS_UI_DEFAULT = "swagger"
+app.extend(config=Config(oas_autodoc=True, oas_ui_default="swagger" ,cors=False))
 app.ext.openapi.describe(
     title="StoreAPI", version="1.0",
     description="Store API - Sanic Framework"
 )
-app.ext.openapi.build(app)
 app.blueprint(blueprint=auth_router)
 app.blueprint(blueprint=store_router)
 app.blueprint(blueprint=payment_router)
 app.blueprint(blueprint=admin_router)
 
+
 @app.listener('after_server_start')
 async def initial_db_session(app, loop):
-    print(config.POSTGRES_USER, config.POSTGRES_HOST, config.POSTGRES_DB)
     engine = create_async_engine(
         f"postgresql+asyncpg://{config.POSTGRES_USER}:{config.POSTGRES_PASSWORD}"
         f"@{config.POSTGRES_HOST}:{config.POSTGRES_PORT}/{config.POSTGRES_DB}",

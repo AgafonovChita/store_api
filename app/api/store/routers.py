@@ -1,9 +1,12 @@
 from sanic import Blueprint, response
 from sanic.request import Request
+from typing import List
+from sanic_ext.extensions.openapi.definitions import RequestBody, Response, Parameter
 from sanic_pydantic import webargs
-from app.api.store.schemas import BuyBody
+from app.api.store.schemas import BuyBody, ProductSchema, WalletSchema
+from sanic_ext import openapi
 import json
-from app.api.auth import UserBody
+from app.api.auth import UserSchema
 from app.db.models import Product
 
 from app.services import token_validator, user_validator
@@ -19,6 +22,11 @@ store_router = Blueprint(name="store",
 
 
 @store_router.post("/products")
+@openapi.definition(
+    parameter=Parameter("Authorization", str, "header"),
+    summary="Получить список всех товаров",
+    response=Response({"application/json": List[ProductSchema]}, status=200),
+    description="")
 @token_validator
 @user_validator(is_active=True)
 async def get_products(request: Request):
@@ -28,6 +36,12 @@ async def get_products(request: Request):
 
 
 @store_router.post("/wallets")
+@openapi.definition(
+    parameter=Parameter("Authorization", str, "header"),
+    summary="Получить список своих кошельков",
+    response=Response({"application/json": List[WalletSchema]}, status=200),
+    description="Пользователь получает список кошельков, принадлежащих ему. "
+                "Идентификация пользователя происходит через access-token.")
 @token_validator
 @user_validator(is_active=True)
 async def get_wallets(request: Request):
@@ -37,6 +51,12 @@ async def get_wallets(request: Request):
 
 
 @store_router.post("/buy_product")
+@openapi.definition(
+    body={'application/json': BuyBody.schema()},
+    parameter=Parameter("Authorization", str, "header"),
+    summary="Купить товар",
+    response=Response(str, status=200),
+    description="Денежные средства списываются со счёта, указанного пользователем в теле-запроса")
 @token_validator
 @user_validator(is_active=True)
 @webargs(body=BuyBody)
@@ -48,6 +68,8 @@ async def buy_product(request: Request, **kwargs):
         return response.json(body={"status": "error", "message": "Недостаточно средств на балансе счёта"})
 
     await repo.get_repo(StoreRepo).buy_product(wallet_id=buy_data.wallet_id, product_id=buy_data.product_id)
-    return response.json(body={}, status=200)
+    return response.text("product purchased", status=200)
+
+
 
 

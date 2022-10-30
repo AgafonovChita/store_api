@@ -3,7 +3,7 @@ from sanic.request import Request
 from app.utils.jwt import check_token
 from app.db.models import User
 from app.services.repo import SQLAlchemyRepo, UserRepo
-from app.api.payment.schemas import PaymentBody
+from app.api.payment.schemas import PaymentSchema
 from app.utils.crypt import get_signature_webhook
 from app.config_reader import config
 
@@ -61,7 +61,7 @@ def webhook_signature_validator(func):
     Позволяет проверить валидность signature у webhook, пришедшего на payload/webhook
     """
     async def wrapped(request: Request, *args, **kwargs):
-        payment_data: PaymentBody = PaymentBody.parse_raw(request.body)
+        payment_data: PaymentSchema = PaymentSchema.parse_raw(request.body)
         signature = await get_signature_webhook(private_key=config.PRIVATE_KEY, amount=payment_data.amount,
                                                 transaction_id=payment_data.transaction_id,
                                                 user_id=payment_data.user_id, bill_id=payment_data.bill_id)

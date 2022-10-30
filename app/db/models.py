@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, Text, Boolean, FLOAT, ForeignKey, BigInt
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-from app.api.auth import UserBody
+from app.api.auth import UserSchema
 from app.db.base import Base
 
 
@@ -17,7 +17,7 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
     wallets = relationship("Wallet", backref="owner", lazy='joined')
 
-    def __init__(self, user: UserBody, wallets):
+    def __init__(self, user: UserSchema, wallets):
         self.login = user.login
         self.password = user.password
         self.wallets = wallets

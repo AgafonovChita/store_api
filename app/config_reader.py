@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     TTL_ACCESS_TOKEN: int
     TTL_REFRESH_TOKEN: int
 
+    DEV: bool
+
     class Config:
         env_file = './.env_dev'
         env_file_encoding = 'utf-8'

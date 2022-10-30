@@ -1,8 +1,11 @@
 from sanic import Blueprint, response
+from sanic_ext.extensions.openapi.definitions import RequestBody, Response, Parameter
 from sanic.request import Request
 from sanic_pydantic import webargs
+from sanic_ext import openapi
 
-from app.api.auth import UserBody
+
+from app.api.auth import UserSchema, TokenSchema, RefreshTokenSchema
 from app.db.models import User, Wallet, RefreshToken
 
 from app.services import token_validator
@@ -18,11 +21,15 @@ auth_router = Blueprint(name="auth",
 
 
 @auth_router.post("/register")
-
-@webargs(body=UserBody)
+@openapi.definition(
+    body={'application/json': UserSchema.schema()},
+    response=Response(response.text, status=200, description="Ссылка для активации аккаунта"),
+    summary="Регистрация нового пользователя"
+)
+@webargs(body=UserSchema)
 async def register_new_user(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
-    user_data = UserBody.parse_raw(request.body)
+    user_data = UserSchema.parse_raw(request.body)
 
     if not await repo.get_repo(UserRepo).check_user_by_login(login=user_data.login):
         user_data.password = await crypt_password(password=user_data.password)
@@ -35,19 +42,26 @@ async def register_new_user(request: Request, **kwargs):
 
 
 @auth_router.get('/activate/<user_id>')
+@openapi.parameter("user_id")
+@openapi.response(200, str)
 async def activate_account(request, user_id: int):
+    """Активация аккаунта после регистрации (переход по ссылке, возвращаемой /register)"""
     repo: SQLAlchemyRepo = request.ctx.repo
     if not await repo.get_repo(UserRepo).check_user_by_id(user_id=user_id):
         return response.json({"message": "auth with this id is not registered"}, status=401)
     await repo.get_repo(UserRepo).activate_account(user_id=user_id)
-    return response.json({"message": f"Account successfully activated"}, status=200)
+    return response.text("account successfully activated", status=200)
 
 
 @auth_router.post("/login")
-@webargs(body=UserBody)
+@openapi.definition(
+    body={'application/json': UserSchema.schema()},
+    response=Response({"application/json": TokenSchema}, status=200))
+@webargs(body=UserSchema)
 async def login_user(request: Request, **kwargs):
+    """Авторизация по логину/паролю. Возвращает access-token и refresh-token"""
     repo: SQLAlchemyRepo = request.ctx.repo
-    user_data: UserBody = UserBody.parse_raw(request.body)
+    user_data: UserSchema = UserSchema.parse_raw(request.body)
     user = await repo.get_repo(UserRepo).get_user_by_login(login=user_data.login)
 
     if (not user) or (not await check_password(password=user_data.password, hash_password=user.password)):
@@ -61,8 +75,15 @@ async def login_user(request: Request, **kwargs):
 
 
 @auth_router.post("/refresh_token")
+@openapi.definition(
+    parameter=Parameter("Authorization", str, "header"),
+    body={'application/json': RefreshTokenSchema.schema()},
+    summary="Обновление пары access-token/refresh-token по истечению срока старого access-token",
+    response=Response({"application/json": TokenSchema}, status=200),
+    description="")
 @token_validator
 async def update_token(request: Request):
+    """Обновление пары access-token/refresh-token по истечению срока старого access-token"""
     repo: SQLAlchemyRepo = request.ctx.repo
     token: RefreshToken = await repo.get_repo(RefreshTokenRepo).get_refresh_token(token=request.headers.get("Authorization"))
 
