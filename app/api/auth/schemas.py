@@ -13,8 +13,3 @@ class TokenSchema(BaseModel):
 
 class RefreshTokenSchema(BaseModel):
     refresh_token: str
-
-
-
-
-

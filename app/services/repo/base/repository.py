@@ -1,4 +1,3 @@
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from functools import lru_cache
 from typing import Type, TypeVar

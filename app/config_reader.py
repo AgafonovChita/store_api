@@ -20,9 +20,9 @@ class Settings(BaseSettings):
     DEV: bool
 
     class Config:
-        env_file = './.env_dev'
-        env_file_encoding = 'utf-8'
-        env_nested_delimiter = '__'
+        env_file = "./.env_dev"
+        env_file_encoding = "utf-8"
+        env_nested_delimiter = "__"
 
 
 config = Settings()

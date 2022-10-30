@@ -8,4 +8,3 @@ class PaymentSchema(BaseModel):
     user_id: int
     bill_id: int
     amount: int
-

@@ -16,5 +16,3 @@ class ProductSchema(BaseModel):
 class WalletSchema(BaseModel):
     wallet_id: int
     wallet_balance: int
-
-

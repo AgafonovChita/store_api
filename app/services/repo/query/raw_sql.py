@@ -1,4 +1,3 @@
-
 """
 row sql-query для выгрузки данных о пользователях и принадлежащих им кошельках в формате
 [ {"id":555, "login": admin,
@@ -24,4 +23,3 @@ users_and_wallets_sql = """select row_to_json(user_and_wallets)
 """row sql-query для периодического удаления из БД 'протухших' refresh-token"""
 delete_expired_tokens = """delete from refresh_tokens
                         where exp < EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'))"""
-

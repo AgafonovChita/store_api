@@ -12,8 +12,7 @@ class UserRepo(BaseSQLAlchemyRepo):
         return user
 
     async def get_user_by_login(self, login: str) -> User:
-        login = await self._session.execute(
-            select(User).where(User.login == login))
+        login = await self._session.execute(select(User).where(User.login == login))
         return login.scalar()
 
     async def check_user_by_login(self, login: str) -> bool:
@@ -26,11 +25,8 @@ class UserRepo(BaseSQLAlchemyRepo):
         return bool(await self.get_user_by_id(user_id=user_id))
 
     async def activate_account(self, user_id: int) -> User:
-        user = await self._session.execute(update(User).
-                                           where(User.id == user_id).
-                                           values(is_active=True))
+        user = await self._session.execute(
+            update(User).where(User.id == user_id).values(is_active=True)
+        )
         await self._session.commit()
         return user
-
-
-

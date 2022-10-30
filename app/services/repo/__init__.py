@@ -5,4 +5,3 @@ from .store_repo import StoreRepo
 from .transaction_repo import TransactionRepo
 from .admin_repo import AdminRepo
 from .service_app_repo import ServiceRepo
-

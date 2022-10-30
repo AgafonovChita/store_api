@@ -19,7 +19,9 @@ def setup_db_middlewares(app: Sanic, engine: AsyncEngine):
 
     @app.on_request
     async def inject_session(request):
-        request.ctx.session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)()
+        request.ctx.session = sessionmaker(
+            engine, class_=AsyncSession, expire_on_commit=False
+        )()
         request.ctx.repo = SQLAlchemyRepo(request.ctx.session)
         request.ctx.session_ctx_token = _base_model_session_ctx.set(request.ctx.session)
 

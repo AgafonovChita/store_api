@@ -37,8 +37,3 @@ class UserAndWalletSchema(BaseModel):
     user_id: int
     login: int
     wallets: List[WalletSchema]
-
-
-
-
-

@@ -1,6 +1,16 @@
 import uuid
 
-from sqlalchemy import Column, Integer, Text, Boolean, FLOAT, ForeignKey, BigInteger, LargeBinary, TIMESTAMP
+from sqlalchemy import (
+    Column,
+    Integer,
+    Text,
+    Boolean,
+    FLOAT,
+    ForeignKey,
+    BigInteger,
+    LargeBinary,
+    TIMESTAMP,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -15,7 +25,7 @@ class User(Base):
     password = Column(LargeBinary, nullable=False)
     is_active = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
-    wallets = relationship("Wallet", backref="owner", lazy='joined')
+    wallets = relationship("Wallet", backref="owner", lazy="joined")
 
     def __init__(self, user: UserSchema, wallets):
         self.login = user.login
@@ -23,7 +33,12 @@ class User(Base):
         self.wallets = wallets
 
     def to_dict(self):
-        return {"id": self.id, "login": self.login, "is_active": self.is_active, "is_admin": self.is_admin}
+        return {
+            "id": self.id,
+            "login": self.login,
+            "is_active": self.is_active,
+            "is_admin": self.is_admin,
+        }
 
 
 class RefreshToken(Base):
@@ -41,7 +56,12 @@ class Product(Base):
     price = Column(Integer, default=100)
 
     def to_dict(self):
-        return {"id": self.id, "header": self.header, "descript": self.description, "price": self.price}
+        return {
+            "id": self.id,
+            "header": self.header,
+            "descript": self.description,
+            "price": self.price,
+        }
 
 
 class Wallet(Base):
@@ -52,8 +72,12 @@ class Wallet(Base):
     transactions = relationship("Transaction", backref="wallet")
 
     def to_dict(self):
-        return {"id": self.id, "balance": self.balance, "owner_id": self.owner_id,
-                "transactions": self.transactions}
+        return {
+            "id": self.id,
+            "balance": self.balance,
+            "owner_id": self.owner_id,
+            "transactions": self.transactions,
+        }
 
 
 class Transaction(Base):
@@ -64,5 +88,3 @@ class Transaction(Base):
 
     def to_dict(self):
         return {"id": self.id, "count": self.count, "wallet_id": self.wallet_id}
-
-
