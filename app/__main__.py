@@ -40,7 +40,8 @@ def init_app():
     @app.after_server_start
     async def create_sheduler(app, loop):
         app.ctx.scheduler = AsyncIOScheduler()
-        app.ctx.scheduler.add_job(token_clean, "interval", args=[engine], seconds=20)
+        app.ctx.scheduler.add_job(token_clean, "interval", args=[engine],
+                                  seconds=config.INTERVAL_DELETE_EXPIRE_TOKENS)
         app.ctx.scheduler.start()
 
     return app

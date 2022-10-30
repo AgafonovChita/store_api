@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     TTL_ACCESS_TOKEN: int
     TTL_REFRESH_TOKEN: int
+    INTERVAL_DELETE_EXPIRE_TOKENS: int
 
     DEV: bool
 
