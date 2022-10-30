@@ -28,9 +28,6 @@ services:
     ports:
       - "6000:5432"
 
-
-
-
 volumes:
   postgres_data:
 
