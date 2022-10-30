@@ -5,17 +5,9 @@ from sanic_ext.extensions.openapi.definitions import RequestBody, Response, Para
 from sanic_pydantic import webargs
 from app.api.store.schemas import BuyBody, ProductSchema, WalletSchema
 from sanic_ext import openapi
-import json
-from app.api.auth import UserSchema
-from app.db.models import Product
 
 from app.services import token_validator, user_validator
 from app.services.repo import SQLAlchemyRepo, StoreRepo
-
-from app.utils.crypt import crypt_password, check_password
-from app.utils.jwt import create_token
-
-from app.config_reader import config
 
 store_router = Blueprint(name="store",
                          url_prefix="/store")

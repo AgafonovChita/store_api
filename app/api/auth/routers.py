@@ -29,6 +29,7 @@ auth_router = Blueprint(name="auth",
 @webargs(body=UserSchema)
 async def register_new_user(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
+
     user_data = UserSchema.parse_raw(request.body)
 
     if not await repo.get_repo(UserRepo).check_user_by_login(login=user_data.login):
