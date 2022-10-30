@@ -38,5 +38,58 @@ ________________________________________________________________
 
 ## ДОКУМЕНТАЦИЯ API
 Документация <b>Swagger</b> доступна по <a href="http://0.0.0.0:8080/docs">0.0.0.0:8080/docs</a>
+___________________________________________________________________
+## Example
+#### Request
+` curl -X POST --location "http://0.0.0.0:8080/admin/users_and_wallets" `
+<br>
+`-H "Content-Type: application/json"`
+<br>
+`-H "Authorization: eyJhbGciOiJIUzI1XNzIn0.eyJ1c2VzcsImV4cCI6MTY2NzE0ODgxMn0.djuDOcgZYipQruZwWKVt3T7jNPmngFc" `
 
+#### Response
+
+`HTTP/1.1 200 OK`
+<br>
+`content-length: 296`
+<br>
+`connection: keep-alive`
+<br>
+`content-type: application/json`
+br
+
+`[
+  {
+    "user_id": 777,
+    "login": "admin",
+    "wallets": [
+      {
+        "wallet_id": 7779,
+        "wallet_balance": 1000
+      },
+      {
+        "wallet_id": 7770,
+        "wallet_balance": 20
+      }
+    ]
+  },
+  {
+    "user_id": 555,
+    "login": "agafonov",
+    "wallets": [
+      {
+        "wallet_id": 5559,
+        "wallet_balance": 100
+      },
+      {
+        "wallet_id": 5551,
+        "wallet_balance": 999
+      },
+      {
+        "wallet_id": 5552,
+        "wallet_balance": 1000000
+      }
+    ]
+  }
+] `
 
