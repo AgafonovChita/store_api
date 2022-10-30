@@ -25,7 +25,7 @@ ________________________________________________________________
 ## УСТАНОВКА
 <ol>
     <li>Установить Docker и Docker-compose
-    <li>Клонировать репозиторий <code>git clone https://github.com/AgafonovChita/store_api.git</code>
+    <li>Клонировать репозиторий <code>https://github.com/AgafonovSiberia/store_api_SanicFramework.git</code>
     <li>Перейти в рабочую директорию <code>cd store_api</code>
     <li>Запустить контейнер <code>make run</code>
   </ol>
