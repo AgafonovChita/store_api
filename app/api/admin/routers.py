@@ -7,7 +7,7 @@ from sanic_ext.extensions.openapi.definitions import RequestBody, Response, Para
 from app.api.payment.schemas import PaymentSchema
 from app.api.store.schemas import ProductSchema
 from app.api.admin.schemas import UserAndWalletSchema, UserSchema
-from app.services import token_validator, user_validator
+from app.services import token_validator, user_validator, body_validator
 from app.services.repo import SQLAlchemyRepo, StoreRepo, TransactionRepo, AdminRepo
 from .schemas import (
     UserStatusSchema,
@@ -23,8 +23,7 @@ admin_router = Blueprint(name="admin", url_prefix="/admin")
 @openapi.definition(
     parameter=Parameter("Authorization", str, "header"),
     summary="Получить список всех товаров",
-    response=Response({"application/json": List[ProductSchema]}, status=200),
-)
+    response=Response({"application/json": List[ProductSchema]}, status=200))
 @token_validator
 @user_validator(is_active=True, is_admin=True)
 async def get_products(request: Request, **kwargs) -> HTTPResponse:
@@ -51,7 +50,7 @@ async def get_users_and_wallets(request: Request, **kwargs):
     return response.json(user_and_wallets_list)
 
 
-@admin_router.route("/users", methods=["POST", "GET"])
+@admin_router.get("/users")
 @openapi.definition(
     parameter=Parameter("Authorization", str, "header"),
     summary="Получить список всех пользователей",
@@ -76,13 +75,13 @@ async def get_users(request: Request, **kwargs):
 )
 @token_validator
 @user_validator(is_active=True, is_admin=True)
-async def get_users(request: Request, user_id: int, **kwargs):
+async def get_user_by_id(request: Request, user_id: int, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
     user = await repo.get_repo(AdminRepo).get_user_by_id(user_id=int(user_id))
     return response.json(user.to_dict())
 
 
-@admin_router.post("/change_user_status")
+@admin_router.patch("user/status")
 @openapi.definition(
     body={"application/json": UserStatusSchema.schema()},
     parameter=Parameter("Authorization", str, "header"),
@@ -93,7 +92,7 @@ async def get_users(request: Request, user_id: int, **kwargs):
 @token_validator
 @user_validator(is_active=True, is_admin=True)
 @webargs(body=UserStatusSchema)
-async def get_users(request: Request, **kwargs):
+async def change_user_status(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
     user_status: UserStatusSchema = UserStatusSchema.parse_raw(request.body)
     await repo.get_repo(AdminRepo).change_user_status(
@@ -102,12 +101,10 @@ async def get_users(request: Request, **kwargs):
         is_admin=user_status.is_admin,
     )
     return response.json(
-        body={
-            "user_id": user_status.user_id,
-            "is_active": user_status.is_active,
-            "is_admin": user_status.is_admin,
-        },
-        status=200,
+        body=UserStatusSchema(**{"user_id": user_status.user_id,
+                                 "is_active": user_status.is_active,
+                                 "is_admin": user_status.is_admin,
+                                 })
     )
 
 

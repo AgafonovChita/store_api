@@ -18,8 +18,6 @@ class Settings(BaseSettings):
     TTL_REFRESH_TOKEN: int
     INTERVAL_DELETE_EXPIRE_TOKENS: int
 
-    DEV: bool
-
     class Config:
         env_file = "./.env_dev"
         env_file_encoding = "utf-8"

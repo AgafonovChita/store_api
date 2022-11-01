@@ -1,4 +1,5 @@
 from sanic import response
+from sanic.exceptions import Unauthorized
 from sanic.request import Request
 from app.utils.jwt import check_token
 from app.db.models import User
@@ -6,6 +7,8 @@ from app.services.repo import SQLAlchemyRepo, UserRepo
 from app.api.payment.schemas import PaymentSchema
 from app.utils.crypt import get_signature_webhook
 from app.config_reader import config
+
+from pydantic import ValidationError
 
 
 def token_validator(func):
@@ -15,17 +18,19 @@ def token_validator(func):
     Работает с обработчиками, принимающими объект Request.
     В случае у спеха в request.ctx.user будет помещён объект User.
     """
-
     async def wrapped(request: Request, *args, **kwargs):
         check = await check_token(token=request.headers.get("Authorization"))
+
         if check.get("status") == "error":
-            return response.json(check, status=401)
+            raise Unauthorized(message=check.get("message"))
+
         repo: SQLAlchemyRepo = request.ctx.repo
         user = await repo.get_repo(UserRepo).get_user_by_id(
-            user_id=check.get("payload").get("user_id")
-        )
+            user_id=check.get("payload").get("user_id"))
+
         request.ctx.user = user
-        result = await func(request=request, *args, **kwargs)
+
+        result = await func(request, *args, **kwargs)
         return result
 
     return wrapped
@@ -60,6 +65,23 @@ def user_validator(is_active: bool = True, is_admin: bool = False):
         return wrapped
 
     return validator
+
+
+def body_validator(body_schema=None):
+    def decorator(func):
+        async def decorated_function(request, *args, **kwargs):
+            try:
+                schema = body_schema(**request.json)
+            except ValidationError as e:
+                return response.json(body=e.errors(), status=422)
+            request.ctx.schema = schema
+            result = func(request, *args, **kwargs)
+            return await result
+        return decorated_function
+    return decorator
+
+
+
 
 
 def webhook_signature_validator(func):

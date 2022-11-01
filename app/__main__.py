@@ -18,7 +18,7 @@ from .config_reader import config
 
 
 def init_app():
-    app = Sanic("StoreAPP")
+    app = Sanic("StoreAPPv1")
     app.extend(config=Config(oas_autodoc=True, oas_ui_default="swagger", cors=False))
     app.ext.openapi.describe(
         title="StoreAPI", version="1.0", description="Store API - Sanic Framework"
@@ -38,14 +38,15 @@ def init_app():
     setup_db_middlewares(app=app, engine=engine)
 
     @app.after_server_start
-    async def create_sheduler(app, loop):
+    async def create_scheduler(app, loop):
         app.ctx.scheduler = AsyncIOScheduler()
         app.ctx.scheduler.add_job(token_clean, "interval", args=[engine],
-                                  seconds=config.INTERVAL_DELETE_EXPIRE_TOKENS)
+                                  hours=config.INTERVAL_DELETE_EXPIRE_TOKENS)
         app.ctx.scheduler.start()
 
     return app
 
 
 if __name__ == "__main__":
-    init_app().run(host=config.APP_HOST, port=config.APP_PORT)
+    app = init_app()
+    app.run(host=config.APP_HOST, port=config.APP_PORT)
