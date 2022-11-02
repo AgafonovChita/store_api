@@ -2,8 +2,9 @@ from sanic import Blueprint, response
 from sanic.request import Request
 from sanic_ext.extensions.openapi.definitions import RequestBody, Response, Parameter
 from sanic_ext import openapi
-from sanic_pydantic import webargs
+from app.services.validator import body_validator
 from app.api.payment.schemas import PaymentSchema
+from app.api.store.schemas import WalletSchema
 
 from app.services import webhook_signature_validator
 from app.services.repo import SQLAlchemyRepo, StoreRepo, TransactionRepo
@@ -22,14 +23,13 @@ payment_router = Blueprint(name="payment", url_prefix="/payment")
     существует, то счёт будет создан), amount – сумма транзакции.""",
 )
 @webhook_signature_validator
-@webargs(body=PaymentSchema)
-async def buy_product(request: Request, **kwargs):
+@body_validator(body_schema=PaymentSchema)
+async def payment(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
-    payment_data: PaymentSchema = PaymentSchema.parse_raw(request.body)
-    await repo.get_repo(TransactionRepo).payment_transaction(
-        transaction_id=payment_data.transaction_id,
-        amount=payment_data.amount,
-        wallet_id=payment_data.bill_id,
-        owner_id=payment_data.user_id,
-    )
-    return response.text("wallet replenished", status=200)
+    schema: PaymentSchema = request.ctx.schema
+    wallet = await repo.get_repo(TransactionRepo).payment_transaction(
+        transaction_id=schema.transaction_id,
+        amount=schema.amount,
+        wallet_id=schema.bill_id,
+        owner_id=schema.user_id)
+    return response.json(wallet.to_dict())

@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr
 
 
-class BuyBody(BaseModel):
+class BuySchema(BaseModel):
     wallet_id: int
     product_id: int
 

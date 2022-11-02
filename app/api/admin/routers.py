@@ -1,7 +1,6 @@
 from sanic import Blueprint, response, HTTPResponse
 from typing import List
 from sanic.request import Request
-from sanic_pydantic import webargs
 from sanic_ext import openapi
 from sanic_ext.extensions.openapi.definitions import RequestBody, Response, Parameter
 from app.api.payment.schemas import PaymentSchema
@@ -91,10 +90,10 @@ async def get_user_by_id(request: Request, user_id: int, **kwargs):
 )
 @token_validator
 @user_validator(is_active=True, is_admin=True)
-@webargs(body=UserStatusSchema)
+@body_validator(body_schema=UserStatusSchema)
 async def change_user_status(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
-    user_status: UserStatusSchema = UserStatusSchema.parse_raw(request.body)
+    user_status: UserStatusSchema = request.ctx.schema
     await repo.get_repo(AdminRepo).change_user_status(
         user_id=user_status.user_id,
         is_active=user_status.is_active,
@@ -120,10 +119,10 @@ async def change_user_status(request: Request, **kwargs):
 )
 @token_validator
 @user_validator(is_active=True, is_admin=True)
-@webargs(body=AddProductSchema)
+@body_validator(body_schema=AddProductSchema)
 async def edit_product(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
-    product_body: AddProductSchema = AddProductSchema.parse_raw(request.body)
+    product_body: AddProductSchema = request.ctx.schema
     await repo.get_repo(AdminRepo).add_new_product(
         header=product_body.header,
         description=product_body.description,
@@ -144,10 +143,10 @@ async def edit_product(request: Request, **kwargs):
 )
 @token_validator
 @user_validator(is_active=True, is_admin=True)
-@webargs(body=EditProductSchema)
+@body_validator(body_schema=EditProductSchema)
 async def edit_product(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
-    product_body: EditProductSchema = EditProductSchema.parse_raw(request.body)
+    product_body: EditProductSchema = request.ctx.schema
     await repo.get_repo(AdminRepo).edit_product(
         product_id=product_body.product_id,
         header=product_body.header,
@@ -169,9 +168,9 @@ async def edit_product(request: Request, **kwargs):
 )
 @token_validator
 @user_validator(is_active=True, is_admin=True)
-@webargs(body=DeleteProductSchema)
+@body_validator(body_schema=DeleteProductSchema)
 async def delete_product(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
-    product_body: DeleteProductSchema = DeleteProductSchema.parse_raw(request.body)
+    product_body: DeleteProductSchema = request.ctx.schema
     await repo.get_repo(AdminRepo).delete_product(product_id=product_body.product_id)
     return response.text(f"Product '{product_body.product_id}' deleted", status=200)

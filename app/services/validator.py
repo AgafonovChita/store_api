@@ -5,6 +5,7 @@ from app.utils.jwt import check_token
 from app.db.models import User
 from app.services.repo import SQLAlchemyRepo, UserRepo
 from app.api.payment.schemas import PaymentSchema
+from app.exceptions import InnerException, InnerError
 from app.utils.crypt import get_signature_webhook
 from app.config_reader import config
 
@@ -19,7 +20,8 @@ def token_validator(func):
     В случае у спеха в request.ctx.user будет помещён объект User.
     """
     async def wrapped(request: Request, *args, **kwargs):
-        check = await check_token(token=request.headers.get("Authorization"))
+        token = request.headers.get("Authorization")
+        check = await check_token(token=token)
 
         if check.get("status") == "error":
             raise Unauthorized(message=check.get("message"))
@@ -29,6 +31,8 @@ def token_validator(func):
             user_id=check.get("payload").get("user_id"))
 
         request.ctx.user = user
+        request.ctx.token = token
+
 
         result = await func(request, *args, **kwargs)
         return result
@@ -68,6 +72,12 @@ def user_validator(is_active: bool = True, is_admin: bool = False):
 
 
 def body_validator(body_schema=None):
+    """
+   Функция-декоратор.
+   Позволяет проверить body из запроса по модели Pydantic.
+   Работает с обработчиками, принимающими объект Request.
+   В случае у спеха в request.ctx.schema будет помещён объект, указанный в body_schema.
+   """
     def decorator(func):
         async def decorated_function(request, *args, **kwargs):
             try:
@@ -82,14 +92,11 @@ def body_validator(body_schema=None):
 
 
 
-
-
 def webhook_signature_validator(func):
     """
     Функция-декоратор.
     Позволяет проверить валидность signature у webhook, пришедшего на payload/webhook
     """
-
     async def wrapped(request: Request, *args, **kwargs):
         payment_data: PaymentSchema = PaymentSchema.parse_raw(request.body)
         signature = await get_signature_webhook(
@@ -100,9 +107,8 @@ def webhook_signature_validator(func):
             bill_id=payment_data.bill_id,
         )
         if signature != payment_data.signature:
-            return response.json(
-                body={"message": "signature webhook invalid"}, status=400
-            )
+            raise InnerException(InnerError(15))
+
         return await func(request, *args, **kwargs)
 
     return wrapped

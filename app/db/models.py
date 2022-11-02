@@ -75,9 +75,7 @@ class Wallet(Base):
         return {
             "id": self.id,
             "balance": self.balance,
-            "owner_id": self.owner_id,
-            "transactions": self.transactions,
-        }
+            "owner_id": self.owner_id}
 
 
 class Transaction(Base):

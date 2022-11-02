@@ -34,4 +34,6 @@ class StoreRepo(BaseSQLAlchemyRepo):
         )
         wallet = await self._session.get(Wallet, wallet_id)
         wallet.balance = wallet.balance - price.scalar()
+        product = await self._session.execute(select(Product).where(Product.id == product_id))
         await self._session.commit()
+        return product

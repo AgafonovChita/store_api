@@ -2,8 +2,9 @@ from sanic import Blueprint, response
 from sanic.request import Request
 from typing import List
 from sanic_ext.extensions.openapi.definitions import RequestBody, Response, Parameter
-from sanic_pydantic import webargs
-from app.api.store.schemas import BuyBody, ProductSchema, WalletSchema
+from app.services.validator import body_validator
+from app.exceptions import InnerException, InnerError
+from app.api.store.schemas import BuySchema, ProductSchema, WalletSchema
 from sanic_ext import openapi
 
 from app.services import token_validator, user_validator
@@ -14,11 +15,8 @@ store_router = Blueprint(name="store", url_prefix="/store")
 
 @store_router.post("/products")
 @openapi.definition(
-    parameter=Parameter("Authorization", str, "header"),
-    summary="Получить список всех товаров",
-    response=Response({"application/json": List[ProductSchema]}, status=200),
-    description="",
-)
+    parameter=Parameter("Authorization", str, "header"), summary="Получить список всех товаров",
+    response=Response({"application/json": List[ProductSchema]}, status=200))
 @token_validator
 @user_validator(is_active=True)
 async def get_products(request: Request):
@@ -29,28 +27,23 @@ async def get_products(request: Request):
 
 @store_router.post("/wallets")
 @openapi.definition(
-    parameter=Parameter("Authorization", str, "header"),
-    summary="Получить список своих кошельков",
+    parameter=Parameter("Authorization", str, "header"), summary="Получить список своих кошельков",
     response=Response({"application/json": List[WalletSchema]}, status=200),
     description="Пользователь получает список кошельков, принадлежащих ему. "
-    "Идентификация пользователя происходит через access-token.",
-)
+                "Идентификация пользователя происходит через access-token")
 @token_validator
 @user_validator(is_active=True)
 async def get_wallets(request: Request):
     repo: SQLAlchemyRepo = request.ctx.repo
-    resp = [
-        dict(wallet)
-        for wallet in await repo.get_repo(StoreRepo).get_wallets(
-            user_id=request.ctx.user.id
-        )
-    ]
+    resp = [dict(wallet)
+            for wallet in await repo.get_repo(StoreRepo).get_wallets(user_id=request.ctx.user.id)
+            ]
     return response.json(resp)
 
 
 @store_router.post("/buy_product")
 @openapi.definition(
-    body={"application/json": BuyBody.schema()},
+    body={"application/json": BuySchema.schema()},
     parameter=Parameter("Authorization", str, "header"),
     summary="Купить товар",
     response=Response(str, status=200),
@@ -58,19 +51,18 @@ async def get_wallets(request: Request):
 )
 @token_validator
 @user_validator(is_active=True)
-@webargs(body=BuyBody)
+@body_validator(body_schema=BuySchema)
 async def buy_product(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
-    buy_data: BuyBody = BuyBody.parse_raw(request.body)
+    buy_data: BuySchema = request.ctx.schema
 
     if not await repo.get_repo(StoreRepo).check_ability_to_pay(
-        wallet_id=buy_data.wallet_id, product_id=buy_data.product_id
-    ):
-        return response.json(
-            body={"status": "error", "message": "Недостаточно средств на балансе счёта"}
-        )
+            wallet_id=buy_data.wallet_id, product_id=buy_data.product_id):
+        raise InnerException(InnerError(14))
 
-    await repo.get_repo(StoreRepo).buy_product(
-        wallet_id=buy_data.wallet_id, product_id=buy_data.product_id
-    )
-    return response.text("product purchased", status=200)
+    product = await repo.get_repo(StoreRepo).buy_product(
+        wallet_id=buy_data.wallet_id, product_id=buy_data.product_id)
+    return response.json(product)
+
+
+
