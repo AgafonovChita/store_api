@@ -1,11 +1,11 @@
 
-POST 0.0.0.0:8080/auth/register
-Content-Type: application/json
-
-{
-  "login": "Davcevids",
-  "password": "132552"
-}
+#POST 0.0.0.0:8080/auth/register
+#Content-Type: application/json
+#
+#{
+#  "login": "Davcevids",
+#  "password": "132552"
+#}
 
 ####
 
@@ -13,8 +13,8 @@ Content-Type: application/json
 #Accept: application/json
 
 ###
-#
-#POST 0.0.0.0:8080/auth/login
-#Content-Type: application/json
-#
-#{"login": "admin", "password": "qwery123"}
+
+POST 0.0.0.0:8080/auth/login
+Content-Type: application/json
+
+{"login": "admin", "password": "qwery123"}

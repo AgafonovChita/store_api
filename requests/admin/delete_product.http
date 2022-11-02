@@ -1,8 +1,6 @@
-POST 0.0.0.0:8080/admin/delete_product
+DELETE 0.0.0.0:8080/admin/product/11
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsInR5cGUiOiJKV1QiLCJ0eXBlX3Rva2VuIjoiYWNjZXNzIn0.eyJ1c2VyX2lkIjo3NzcsImV4cCI6MTY2NzE0NDc4Mn0.aCoiBzRuDITxiYnLD0Z0jA7K5ZslFGj-wTDRM5_Fb0U
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsInR5cGUiOiJKV1QiLCJ0eXBlX3Rva2VuIjoiYWNjZXNzIn0.eyJ1c2VyX2lkIjo3NzcsImV4cCI6MTY2NzQwOTY0OH0.Ssg0eyQwDgR74Wkje5sib4KbANw6Q3-s_f3ATJzhPeI
 
-{
-  "product_id": 3
-}
+
 

@@ -8,7 +8,7 @@ from app.exceptions import InnerError, InnerException
 from app.api.auth import UserSchema, TokenSchema, RefreshTokenSchema
 from app.db.models import User, Wallet, RefreshToken
 
-from app.services import token_validator, body_validator
+from app.utils import token_validator, body_validator
 from app.services.repo import SQLAlchemyRepo, UserRepo, RefreshTokenRepo
 
 from app.utils.crypt import crypt_password, check_password
@@ -69,7 +69,7 @@ async def login_user(request: Request, **kwargs):
     refresh_token, ref_exp = await create_token(user_id=user.id, type_token="refresh")
     await repo.get_repo(RefreshTokenRepo).save_refresh_token(
         token=refresh_token, exp=ref_exp)
-    return response.json(TokenSchema(**{"access_token": access_token, "refresh_token": refresh_token}))
+    return response.json({"access_token": access_token, "refresh_token": refresh_token})
 
 
 @auth_router.post("/refresh_token")
@@ -91,4 +91,4 @@ async def update_token(request: Request):
     refresh_token, exp = await create_token(user_id=request.ctx.user.id, type_token="refresh")
     await repo.get_repo(RefreshTokenRepo).update_refresh_token(
         token_id=token.id, token=refresh_token, exp=exp)
-    return response.json(TokenSchema(**{"access_token": access_token, "refresh_token": refresh_token}))
+    return response.json({"access_token": access_token, "refresh_token": refresh_token})

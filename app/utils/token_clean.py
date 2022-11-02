@@ -1,5 +1,3 @@
-from sanic import Sanic
-from app.services.repo import SQLAlchemyRepo, ServiceRepo
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy import text
 from app.services.repo.query.raw_sql import delete_expired_tokens

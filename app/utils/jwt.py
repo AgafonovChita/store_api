@@ -11,6 +11,7 @@ TTL_RT = config.TTL_REFRESH_TOKEN
 
 
 async def create_token(user_id: int, type_token: str):
+    """Создание access/refresh-token"""
     exp = timegm(
         (
             datetime.datetime.now(tz=datetime.timezone.utc)
@@ -27,6 +28,7 @@ async def create_token(user_id: int, type_token: str):
 
 
 async def check_token(token: str):
+    """Проверка валидности jwt-токена, созданного сервером"""
     try:
         if token is None:
             raise InvalidSignatureError

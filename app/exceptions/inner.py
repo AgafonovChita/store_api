@@ -9,6 +9,7 @@ class InnerError(IntEnum):
     ID_IS_NOT_REGISTERED = 13
     INSUFFICIENT_FOUNDS = 14
     WEBHOOK_SIGNATURE_IS_INVALID = 15
+    PRODUCT_NOT_FOUND = 16
 
     def __init__(self, error_code):
         self.error_code = error_code
@@ -20,7 +21,8 @@ class InnerError(IntEnum):
                 self.LOGIN_ALREADY_REGISTERED: "Пользователь с таким логином уже зарегистрирован",
                 self.ID_IS_NOT_REGISTERED: "Пользователь с таким ID не зарегистрирован",
                 self.INSUFFICIENT_FOUNDS: "На счёте недостаточно средств",
-                self.WEBHOOK_SIGNATURE_IS_INVALID: "Недействительная сигнатура"
+                self.WEBHOOK_SIGNATURE_IS_INVALID: "Недействительная сигнатура",
+                self.PRODUCT_NOT_FOUND: "Товар с таким ID не существует"
                 }.get(self.error_code, "")
 
 

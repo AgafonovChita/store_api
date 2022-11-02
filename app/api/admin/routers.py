@@ -2,17 +2,18 @@ from sanic import Blueprint, response, HTTPResponse
 from typing import List
 from sanic.request import Request
 from sanic_ext import openapi
-from sanic_ext.extensions.openapi.definitions import RequestBody, Response, Parameter
-from app.api.payment.schemas import PaymentSchema
+from app.db.models import Product
+from sanic_ext.extensions.openapi.definitions import Response, Parameter
+from app.exceptions import InnerException, InnerError
 from app.api.store.schemas import ProductSchema
 from app.api.admin.schemas import UserAndWalletSchema, UserSchema
-from app.services import token_validator, user_validator, body_validator
-from app.services.repo import SQLAlchemyRepo, StoreRepo, TransactionRepo, AdminRepo
+from app.utils import token_validator, user_validator, body_validator
+from app.services.repo import SQLAlchemyRepo, StoreRepo, AdminRepo
+
 from .schemas import (
     UserStatusSchema,
     AddProductSchema,
     EditProductSchema,
-    DeleteProductSchema,
 )
 
 admin_router = Blueprint(name="admin", url_prefix="/admin")
@@ -31,7 +32,7 @@ async def get_products(request: Request, **kwargs) -> HTTPResponse:
     return response.json(resp)
 
 
-@admin_router.route("/users_and_wallets", methods=["POST", "GET"])
+@admin_router.get("/users_and_wallets")
 @openapi.definition(
     parameter=Parameter("Authorization", str, "header"),
     summary="Получить список всех пользователей и их кошельков",
@@ -54,8 +55,7 @@ async def get_users_and_wallets(request: Request, **kwargs):
     parameter=Parameter("Authorization", str, "header"),
     summary="Получить список всех пользователей",
     response=Response({"application/json": List[UserSchema]}, status=200),
-    description="Выполнение запроса возможно только с аккаунта администратора",
-)
+    description="Выполнение запроса возможно только с аккаунта администратора")
 @token_validator
 @user_validator(is_active=True, is_admin=True)
 async def get_users(request: Request, **kwargs):
@@ -97,24 +97,20 @@ async def change_user_status(request: Request, **kwargs):
     await repo.get_repo(AdminRepo).change_user_status(
         user_id=user_status.user_id,
         is_active=user_status.is_active,
-        is_admin=user_status.is_admin,
-    )
+        is_admin=user_status.is_admin)
     return response.json(
         body=UserStatusSchema(**{"user_id": user_status.user_id,
                                  "is_active": user_status.is_active,
-                                 "is_admin": user_status.is_admin,
-                                 })
+                                 "is_admin": user_status.is_admin})
     )
 
 
-@admin_router.post("/add_product")
+@admin_router.post("/product")
 @openapi.definition(
     body={"application/json": AddProductSchema.schema()},
     parameter=Parameter("Authorization", str, "header"),
     summary="Добавить новый товар",
-    response=Response(
-        response.text, status=200, description="Подтверждение добавления товара"
-    ),
+    response=Response(ProductSchema, status=201),
     description="Выполнение запроса возможно только с аккаунта администратора",
 )
 @token_validator
@@ -123,22 +119,20 @@ async def change_user_status(request: Request, **kwargs):
 async def edit_product(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
     product_body: AddProductSchema = request.ctx.schema
-    await repo.get_repo(AdminRepo).add_new_product(
+    product = await repo.get_repo(AdminRepo).add_new_product(
         header=product_body.header,
         description=product_body.description,
-        price=product_body.price,
-    )
-    return response.text(f"Product '{product_body.header}' added", status=200)
+        price=product_body.price)
+    return response.json(product.to_dict())
 
 
-@admin_router.post("/edit_product")
+##нужно использовать PATCH/PUT
+@admin_router.put("/product")
 @openapi.definition(
     body={"application/json": EditProductSchema.schema()},
     parameter=Parameter("Authorization", str, "header"),
     summary="Изменить товар по ID",
-    response=Response(
-        response.text, status=200, description="Подтверждение изменения товара"
-    ),
+    response=Response(ProductSchema, status=200),
     description="Выполнение запроса возможно только с аккаунта администратора",
 )
 @token_validator
@@ -147,30 +141,32 @@ async def edit_product(request: Request, **kwargs):
 async def edit_product(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
     product_body: EditProductSchema = request.ctx.schema
-    await repo.get_repo(AdminRepo).edit_product(
+
+    if not await repo.get_repo(AdminRepo).check_product_by_id(product_id=product_body.product_id):
+        raise InnerException(InnerError(16))
+
+    product = await repo.get_repo(AdminRepo).edit_product(
         product_id=product_body.product_id,
         header=product_body.header,
         description=product_body.description,
-        price=product_body.price,
-    )
-    return response.text(f"Product '{product_body.header}' edited", status=200)
+        price=product_body.price)
+
+    return response.json(Product(**product).to_dict())
 
 
-@admin_router.post("/delete_product")
+@admin_router.delete("/product/<product_id>")
 @openapi.definition(
-    body={"application/json": DeleteProductSchema.schema()},
-    parameter=Parameter("Authorization", str, "header"),
+    parameter=(Parameter("product_id", int, "query"), Parameter("Authorization", str, "header")),
     summary="Удалить товар по ID",
-    response=Response(
-        response.text, status=200, description="Подтверждение удаления товара"
-    ),
-    description="Выполнение запроса возможно только с аккаунта администратора",
-)
+    response=Response(ProductSchema, status=200),
+    description="Выполнение запроса возможно только с аккаунта администратора")
 @token_validator
 @user_validator(is_active=True, is_admin=True)
-@body_validator(body_schema=DeleteProductSchema)
-async def delete_product(request: Request, **kwargs):
+async def delete_product(request: Request, product_id: int, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
-    product_body: DeleteProductSchema = request.ctx.schema
-    await repo.get_repo(AdminRepo).delete_product(product_id=product_body.product_id)
-    return response.text(f"Product '{product_body.product_id}' deleted", status=200)
+    product = await repo.get_repo(AdminRepo).check_product_by_id(product_id=int(product_id))
+    if not product:
+        raise InnerException(InnerError(16))
+
+    product = await repo.get_repo(AdminRepo).delete_product(product_id=int(product_id))
+    return response.json(Product(**product).to_dict())

@@ -26,7 +26,7 @@ class AdminRepo(BaseSQLAlchemyRepo):
         return user
 
     async def change_user_status(
-        self, user_id: int, is_active: bool, is_admin: bool = False
+            self, user_id: int, is_active: bool, is_admin: bool = False
     ):
         await self._session.execute(
             update(User)
@@ -36,21 +36,31 @@ class AdminRepo(BaseSQLAlchemyRepo):
         await self._session.commit()
 
     async def add_new_product(self, header: str, description: str, price: int):
-        await self._session.merge(
+        product = await self._session.merge(
             Product(header=header, description=description, price=price)
         )
         await self._session.commit()
+        return product
 
-    async def edit_product(
-        self, product_id: int, header: str, description: str, price: int
-    ):
-        await self._session.execute(
+    async def edit_product(self, product_id: int, header: str, description: str, price: int):
+        product = await self._session.execute(
             update(Product)
             .where(Product.id == product_id)
             .values(header=header, description=description, price=price)
+            .returning(Product)
         )
         await self._session.commit()
+        return product.fetchone()
 
     async def delete_product(self, product_id: int):
-        await self._session.execute(delete(Product).where(Product.id == product_id))
+        product = await self._session.execute(delete(Product)
+                                              .where(Product.id == product_id)
+                                              .returning(Product))
         await self._session.commit()
+        return product.fetchone()
+
+    async def get_product_by_id(self, product_id: int) -> Product:
+        return await self._session.get(Product, product_id)
+
+    async def check_product_by_id(self, product_id: int) -> bool:
+        return bool(await self.get_product_by_id(product_id=product_id))

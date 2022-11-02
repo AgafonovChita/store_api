@@ -1,13 +1,12 @@
 from sanic import Blueprint, response
 from sanic.request import Request
-from sanic_ext.extensions.openapi.definitions import RequestBody, Response, Parameter
+from sanic_ext.extensions.openapi.definitions import Response
 from sanic_ext import openapi
-from app.services.validator import body_validator
+from app.utils.validators import body_validator
 from app.api.payment.schemas import PaymentSchema
-from app.api.store.schemas import WalletSchema
 
-from app.services import webhook_signature_validator
-from app.services.repo import SQLAlchemyRepo, StoreRepo, TransactionRepo
+from app.utils import webhook_signature_validator
+from app.services.repo import SQLAlchemyRepo, TransactionRepo
 
 payment_router = Blueprint(name="payment", url_prefix="/payment")
 

@@ -1,13 +1,13 @@
 from sanic import Blueprint, response
 from sanic.request import Request
 from typing import List
-from sanic_ext.extensions.openapi.definitions import RequestBody, Response, Parameter
-from app.services.validator import body_validator
+from sanic_ext.extensions.openapi.definitions import Response, Parameter
+from app.utils.validators import body_validator
 from app.exceptions import InnerException, InnerError
 from app.api.store.schemas import BuySchema, ProductSchema, WalletSchema
 from sanic_ext import openapi
 
-from app.services import token_validator, user_validator
+from app.utils import token_validator, user_validator
 from app.services.repo import SQLAlchemyRepo, StoreRepo
 
 store_router = Blueprint(name="store", url_prefix="/store")
