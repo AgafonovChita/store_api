@@ -50,7 +50,7 @@ async def get_users_and_wallets(request: Request, **kwargs):
     return response.json(user_and_wallets_list)
 
 
-@admin_router.get("/users")
+@admin_router.get("/users/<expand:string>")
 @openapi.definition(
     parameter=Parameter("Authorization", str, "header"),
     summary="Получить список всех пользователей",
@@ -64,7 +64,7 @@ async def get_users(request: Request, **kwargs):
     return response.json(user_list)
 
 
-@admin_router.get("/user/<user_id>")
+@admin_router.get("/users/<user_id>")
 @openapi.parameter("user_id")
 @openapi.definition(
     parameter=Parameter("Authorization", str, "header"),
@@ -80,7 +80,7 @@ async def get_user_by_id(request: Request, user_id: int, **kwargs):
     return response.json(user.to_dict())
 
 
-@admin_router.patch("user/status")
+@admin_router.patch("users/status")
 @openapi.definition(
     body={"application/json": UserStatusSchema.schema()},
     parameter=Parameter("Authorization", str, "header"),
@@ -105,7 +105,7 @@ async def change_user_status(request: Request, **kwargs):
     )
 
 
-@admin_router.post("/product")
+@admin_router.post("/products")
 @openapi.definition(
     body={"application/json": AddProductSchema.schema()},
     parameter=Parameter("Authorization", str, "header"),
@@ -127,7 +127,7 @@ async def edit_product(request: Request, **kwargs):
 
 
 ##нужно использовать PATCH/PUT
-@admin_router.put("/product")
+@admin_router.put("/products")
 @openapi.definition(
     body={"application/json": EditProductSchema.schema()},
     parameter=Parameter("Authorization", str, "header"),
@@ -154,7 +154,7 @@ async def edit_product(request: Request, **kwargs):
     return response.json(Product(**product).to_dict())
 
 
-@admin_router.delete("/product/<product_id>")
+@admin_router.delete("/products/<product_id>")
 @openapi.definition(
     parameter=(Parameter("product_id", int, "query"), Parameter("Authorization", str, "header")),
     summary="Удалить товар по ID",
