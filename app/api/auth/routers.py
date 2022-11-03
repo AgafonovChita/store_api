@@ -54,6 +54,7 @@ async def activate_account(request, user_id: int):
 @auth_router.post("/login")
 @openapi.definition(
     body={"application/json": UserSchema.schema()},
+    summary="Авторизация",
     response=Response({"application/json": TokenSchema}, status=200))
 @body_validator(body_schema=UserSchema)
 async def login_user(request: Request, **kwargs):
@@ -72,7 +73,7 @@ async def login_user(request: Request, **kwargs):
     return response.json({"access_token": access_token, "refresh_token": refresh_token})
 
 
-@auth_router.post("/refresh_token")
+@auth_router.post("/refresh_tokens")
 @openapi.definition(
     parameter=Parameter("Authorization", str, "header"), body={"application/json": RefreshTokenSchema.schema()},
     summary="Обновление пары access-token/refresh-token по истечению срока старого access-token",

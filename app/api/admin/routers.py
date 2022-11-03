@@ -4,6 +4,7 @@ from sanic.request import Request
 from sanic_ext import openapi
 from app.db.models import Product
 from sanic_ext.extensions.openapi.definitions import Response, Parameter
+from sanic.exceptions import NotFound
 from app.exceptions import InnerException, InnerError
 from app.api.store.schemas import ProductSchema
 from app.api.admin.schemas import UserAndWalletSchema, UserSchema
@@ -32,27 +33,13 @@ async def get_products(request: Request, **kwargs) -> HTTPResponse:
     return response.json(resp)
 
 
-@admin_router.get("/users_and_wallets")
+@admin_router.get("/users")
 @openapi.definition(
-    parameter=Parameter("Authorization", str, "header"),
-    summary="Получить список всех пользователей и их кошельков",
-    response=Response({"application/json": List[UserAndWalletSchema]}, status=200),
-    description="Выполнение запроса возможно только с аккаунта администратора",
-)
-@token_validator
-@user_validator(is_active=True, is_admin=True)
-async def get_users_and_wallets(request: Request, **kwargs):
-    repo: SQLAlchemyRepo = request.ctx.repo
-    user_and_wallets_list = [
-        dict(uw).get("row_to_json")
-        for uw in await repo.get_repo(AdminRepo).get_users_and_wallets()
-    ]
-    return response.json(user_and_wallets_list)
-
-
-@admin_router.get("/users/<expand:string>")
-@openapi.definition(
-    parameter=Parameter("Authorization", str, "header"),
+    parameter=(Parameter("Authorization", str, location="header"),
+               Parameter("expand", bool, location="query",
+                         description="Optional. Указание данного параметра /users/?expand=True "
+                                     "позволяет получить расширенный список пользователей, вместе с данными "
+                                     "о принадлежащих им кошельках")),
     summary="Получить список всех пользователей",
     response=Response({"application/json": List[UserSchema]}, status=200),
     description="Выполнение запроса возможно только с аккаунта администратора")
@@ -60,6 +47,12 @@ async def get_users_and_wallets(request: Request, **kwargs):
 @user_validator(is_active=True, is_admin=True)
 async def get_users(request: Request, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
+    if request.args.get("expand"):
+        user_and_wallets_list = [
+            dict(uw).get("row_to_json")
+            for uw in await repo.get_repo(AdminRepo).get_users_and_wallets()
+        ]
+        return response.json(user_and_wallets_list)
     user_list = [dict(user) for user in await repo.get_repo(AdminRepo).get_users()]
     return response.json(user_list)
 
@@ -77,7 +70,9 @@ async def get_users(request: Request, **kwargs):
 async def get_user_by_id(request: Request, user_id: int, **kwargs):
     repo: SQLAlchemyRepo = request.ctx.repo
     user = await repo.get_repo(AdminRepo).get_user_by_id(user_id=int(user_id))
-    return response.json(user.to_dict())
+    if user:
+        return response.json(user.to_dict())
+    raise NotFound()
 
 
 @admin_router.patch("users/status")
@@ -126,7 +121,6 @@ async def edit_product(request: Request, **kwargs):
     return response.json(product.to_dict())
 
 
-##нужно использовать PATCH/PUT
 @admin_router.put("/products")
 @openapi.definition(
     body={"application/json": EditProductSchema.schema()},

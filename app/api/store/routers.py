@@ -41,7 +41,7 @@ async def get_wallets(request: Request):
     return response.json(resp)
 
 
-@store_router.post("/buy_product")
+@store_router.post("/buy/product")
 @openapi.definition(
     body={"application/json": BuySchema.schema()},
     parameter=Parameter("Authorization", str, "header"),

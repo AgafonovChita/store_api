@@ -1,10 +1,4 @@
-PUT 0.0.0.0:8080/admin/product
+GET 0.0.0.0:8080/admin/users/3
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsInR5cGUiOiJKV1QiLCJ0eXBlX3Rva2VuIjoiYWNjZXNzIn0.eyJ1c2VyX2lkIjo3NzcsImV4cCI6MTY2NzQxMTAzOX0.vTiHHVUyFxHExZU13ayZKWItu7N19hqNXfpwvCOdv4A
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsInR5cGUiOiJKV1QiLCJ0eXBlX3Rva2VuIjoiYWNjZXNzIn0.eyJ1c2VyX2lkIjo3NzcsImV4cCI6MTY2NzQ1MTg2MX0.3twx5BkMgmiz_e_jHRYvFI346Cx-0N7frHYk-Zqupoc
 
-{
-  "product_id": 12,
-  "header": "Monitor",
-  "description": "PC Processor 10th",
-  "price": 9999
-}
